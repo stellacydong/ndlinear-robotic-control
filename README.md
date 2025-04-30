@@ -128,5 +128,3 @@ Thanks to the [NdLinear](https://github.com/ensemble-core/NdLinear) team for ope
 
 MIT License
 ```
-
----
