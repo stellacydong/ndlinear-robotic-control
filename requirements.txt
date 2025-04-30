@@ -1,0 +1,4 @@
+torch==2.2.1
+gym==0.26.2
+numpy==1.24.4
+git+https://github.com/ensemble-core/NdLinear.git

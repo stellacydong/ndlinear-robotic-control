@@ -1,78 +1,65 @@
+
 # 🤖 Efficient Robotic Arm Control with NdLinear
 
-This project explores the use of [`NdLinear`](https://github.com/ensemble-core/NdLinear) — a low-rank replacement for `nn.Linear` — in robotic control policies. We benchmark NdLinear against standard MLPs in continuous control environments involving robotic arm manipulation.
-
-<p align="center">
-  <img src="assets/robotic_arm_demo.gif" width="60%" alt="Robotic Arm Demo" />
-</p>
+This project explores the use of [`NdLinear`](https://github.com/ensemble-core/NdLinear) — a low-rank replacement for `nn.Linear` — in robotic control policies. We benchmark NdLinear against standard MLPs in continuous control using the classic `Pendulum-v1` environment from OpenAI Gym.
 
 ---
 
 ## 🚀 Motivation
 
-Robotic control tasks often rely on fully connected neural networks (MLPs) as policy or value function approximators. These layers can be parameter-heavy and inefficient, especially in edge applications where compute and latency are constrained.
+Robotic control tasks often rely on fully connected neural networks (MLPs) as policy approximators. These layers can be parameter-heavy and inefficient, especially in edge devices with tight compute or latency budgets.
 
-**NdLinear** introduces low-rank approximations into linear layers, reducing parameter count and potential overfitting, while maintaining expressiveness. This project evaluates whether NdLinear can improve **efficiency, generalization, and performance** in robotic arm control.
+**NdLinear** introduces low-rank approximations to reduce the parameter count while retaining expressive power. We evaluate its impact on performance, efficiency, and training stability.
 
 ---
 
 ## 🧠 Approach
 
-We compare two models:
+We compare two architectures:
 - **Baseline MLP Policy**: Standard MLP using `nn.Linear`
-- **Efficient MLP Policy**: MLP using `NdLinear` with controlled rank
+- **NdLinear MLP Policy**: Same structure, but uses `NdLinear` with configurable rank
 
-Both are trained using **Proximal Policy Optimization (PPO)** on Gym's `FetchReach-v1` and `FetchPush-v1`.
+Both models are trained using a REINFORCE-style policy gradient algorithm.
 
-### 🏗 Model Architecture
+---
+
+## 🏗 Model Architecture
 
 ```text
 MLP Policy:
-  Input: Robot state (e.g., joint positions, velocities)
+  Input: Environment state (e.g., angle, angular velocity)
   Hidden layers: [Linear -> ReLU] x 2
-  Output: Action vector (joint torques)
+  Output: Continuous action value (torque)
 
-Baseline:     nn.Linear (512 → 256 → Action)
-NdLinear:     NdLinear (rank=32)
+Baseline:     nn.Linear layers
+NdLinear:     NdLinear (rank = 32)
 ```
 
 ---
 
 ## ⚙️ Environment
 
-We use the **OpenAI Gym Robotics Suite**:
+We use the classic Gym control task:
 
-- `FetchReach-v1`: Reach a target in 3D space.
-- `FetchPush-v1`: Push a block to a target position.
+- `Pendulum-v1`: Learn to balance a torque-controlled pendulum upright
 
-Each task uses:
-- 3-layer MLP policies
-- PPO from `stable-baselines3`
-- 1 million timesteps of training
-
----
-
-## 📊 Results
-
-| Metric                        | Baseline (`nn.Linear`) | NdLinear (rank=32) |
-|------------------------------|------------------------|--------------------|
-| Final Reward (FetchReach)    | 47.1                   | 46.3               |
-| Model Parameters             | 182K                   | 74K                |
-| Forward Pass Time (ms)       | 1.12                   | 0.69               |
-| Avg. Success Rate (%)        | 95.3                   | 93.9               |
-| Training Time (1e6 steps)    | 2.8h                   | 2.1h               |
-
-<p align="center">
-  <img src="assets/performance_plot.png" width="70%" alt="Performance Comparison" />
-</p>
+Training config:
+- Environment: `Pendulum-v1`
+- Episodes: 500
+- Optimizer: Adam
+- Reward normalization + advantage-weighted regression
 
 ---
 
-## 🔬 Key Insights
+## 📊 Results (Example)
 
-- **NdLinear achieves near-identical performance** to `nn.Linear` with **~60% fewer parameters**.
-- NdLinear policies **generalize better** in noisy environments (see domain randomization tests).
-- Inference is faster — a crucial factor for real-time robotic systems.
+| Metric             | Baseline (`nn.Linear`) | NdLinear (rank=32) |
+|-------------------|------------------------|--------------------|
+| Final Loss        | ~1.12                  | ~1.09              |
+| Parameter Count   | 182K                   | ~74K               |
+| Forward Time (ms) | ~1.1                   | ~0.7               |
+
+_Note: Replace with actual logs from `results/` after your runs._
 
 ---
 
@@ -82,45 +69,47 @@ Each task uses:
 ├── models/
 │   ├── baseline_policy.py      # MLP with nn.Linear
 │   └── ndlinear_policy.py      # MLP with NdLinear
-├── train.py                    # Training loop using PPO
-├── envs/                       # Custom environment wrappers
-├── results/                    # Logs, plots, videos
-├── assets/                     # Visualizations and diagrams
-└── README.md                   # This file
+├── train.py                    # REINFORCE training loop
+├── requirements.txt            # All dependencies
+├── assets/                     # (optional) Plots or demo GIFs
+└── README.md                   # Project documentation
 ```
 
 ---
 
 ## 🧪 How to Run
 
-### Install dependencies
+### 🔧 Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### Train policies
+### 🚀 Train a model
+
+Train a baseline policy:
 ```bash
-python train.py --model baseline    # or 'ndlinear'
+python train.py --model baseline
 ```
 
-### Visualize results
+Train an NdLinear-based policy with rank 32:
 ```bash
-python visualize.py --model ndlinear
+python train.py --model ndlinear --rank 32
 ```
 
 ---
 
-## 🧠 Future Work
+## 🔬 Future Work
 
-- Apply NdLinear to vision-based robotic control (e.g., pixel input with CNNs).
-- Explore dynamic rank adaptation during training.
-- Test deployment on real-time robotic arms (e.g., Raspberry Pi or Jetson).
+- Compare more environments: `MountainCarContinuous`, `Reacher-v2`
+- Replace critic/value heads with NdLinear
+- Run forward-pass benchmarks across devices (CPU vs GPU)
+- Apply NdLinear to vision-based or transformer policies
 
 ---
 
 ## ✨ Acknowledgments
 
-Thanks to the [NdLinear](https://github.com/ensemble-core/NdLinear) team for open-sourcing their work.
+Special thanks to the [NdLinear](https://github.com/ensemble-core/NdLinear) team for enabling efficient linear layers in PyTorch.
 
 ---
 
@@ -128,3 +117,4 @@ Thanks to the [NdLinear](https://github.com/ensemble-core/NdLinear) team for ope
 
 MIT License
 ```
+
