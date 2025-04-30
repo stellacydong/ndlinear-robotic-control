@@ -1,4 +1,3 @@
-
 # 🤖 Efficient Robotic Arm Control with NdLinear
 
 This project explores the use of [`NdLinear`](https://github.com/ensemble-core/NdLinear) — a low-rank replacement for `nn.Linear` — in robotic control policies. We benchmark NdLinear against standard MLPs in continuous control using the classic `Pendulum-v1` environment from OpenAI Gym.
@@ -70,8 +69,8 @@ _Note: Replace with actual logs from `results/` after your runs._
 │   ├── baseline_policy.py      # MLP with nn.Linear
 │   └── ndlinear_policy.py      # MLP with NdLinear
 ├── train.py                    # REINFORCE training loop
-├── requirements.txt            # All dependencies
-├── assets/                     # (optional) Plots or demo GIFs
+├── requirements.txt            # Python dependencies
+├── assets/                     # (optional) Plots, GIFs, demo videos
 └── README.md                   # Project documentation
 ```
 
@@ -116,5 +115,3 @@ Special thanks to the [NdLinear](https://github.com/ensemble-core/NdLinear) team
 ## 📜 License
 
 MIT License
-```
-
