@@ -1,4 +1,3 @@
-```markdown
 # 🤖 Efficient Robotic Arm Control with NdLinear
 
 This project explores the use of [`NdLinear`](https://github.com/ensemble-core/NdLinear) — a low-rank replacement for `nn.Linear` — in robotic control policies. We benchmark NdLinear against standard MLPs in continuous control environments involving robotic arm manipulation.
